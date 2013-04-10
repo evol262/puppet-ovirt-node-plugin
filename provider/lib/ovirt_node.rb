@@ -33,6 +33,12 @@ Puppet::Type.type(:ovirt_node).provide(:ovirt) do
     end
 
     def nfsdomain=(domain) do
+        # The py snippet below will only change the runtime configuratio (NFSv4 domain)
+        # To make persistent changes we'll need to use the ovirt.node.config.defaults
+        # module, which gives us access to all topics which are covered by Node's logic.
+        # ovirt.node.utils.* modules only change the runtime config, but don't persist the
+        # changes.
+        # See ssh_pwauth for a complete example
         python("-c 'from ovirt.node.utils.storage import NFSv4; NFSv4.domain(#{domain}'")
     end
 
@@ -41,8 +47,8 @@ Puppet::Type.type(:ovirt_node).provide(:ovirt) do
     end
 
     def ssh_pwauth=(bool) do
-        python("-c 'from ovirt.node.config import defaults; defaults.SSH().update(#{bool})'")
+        # It needs to be ensured that #{bool} is either True or False (so a bool in py syntax)
+        python("-c 'from ovirt.node.config import defaults; model = defaults.SSH() ; model.update(#{bool}) ; tx = model.transaction() ; tx()'")
     end
-
 
 end
