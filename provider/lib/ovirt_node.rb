@@ -39,7 +39,7 @@ Puppet::Type.type(:ovirt_node).provide(:ovirt) do
         # ovirt.node.utils.* modules only change the runtime config, but don't persist the
         # changes.
         # See ssh_pwauth for a complete example
-        python("-c 'from ovirt.node.utils.storage import NFSv4; NFSv4.domain(#{domain}'")
+        python("-c 'from ovirt.node.config import defaults; model = defaults.NFS(); model.update(#{domain}); tx = model.transaction() ; tx()'")
     end
 
     def iscsi_initiator=(name) do
