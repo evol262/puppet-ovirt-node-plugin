@@ -19,7 +19,19 @@ Puppet::Type.newtype(:ovirt_node) do
     
     newparam(:ssh) do
         desc "Enable SSH authentication"
+        newvalues(:True, :true, :False, :false)
         defaultto :False
+
+        munge do |value|
+            case value
+            when :true
+                :True
+            when :false
+                :False
+            else
+                super
+            end
+        end
     end
 
     newparam(:rsyslog) do 
